@@ -1,0 +1,5 @@
+# Never commit plaintext secrets
+*.env
+*.secret
+secrets/
+!*.sealed.yaml
