@@ -3,7 +3,7 @@ schedule: "0 9 * * 1"  # Every Monday at 9am
 warnDays: 60
 
 ntfy:
-  url: "https://nfty.brian-lab.com/rke_cer_rotation"
+  url: "https://ntfy.brian-lab.com/rke_cert_rotation"
   # token stored in SealedSecret
 
 certPath: /var/lib/rancher/rke2/server/tls
