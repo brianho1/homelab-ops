@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cert-monitor
+description: RKE2 certificate expiry monitoring with ntfy alerts
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

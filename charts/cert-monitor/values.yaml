@@ -1,0 +1,21 @@
+schedule: "0 9 * * 1"  # Every Monday at 9am
+
+warnDays: 60
+
+ntfy:
+  url: "https://nfty.brian-lab.com/rke_cer_rotation"
+  # token stored in SealedSecret
+
+certPath: /var/lib/rancher/rke2/server/tls
+
+image:
+  repository: alpine
+  tag: "3.19"
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi

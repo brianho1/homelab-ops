@@ -1,0 +1,93 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cert-monitor
+  namespace: {{ .Release.Namespace }}
+spec:
+  schedule: {{ .Values.schedule | quote }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: cert-monitor
+          restartPolicy: OnFailure
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/control-plane
+                        operator: Exists
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
+          volumes:
+            - name: tls
+              hostPath:
+                path: {{ .Values.certPath }}
+                type: Directory
+          containers:
+            - name: cert-monitor
+              image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+              resources: {{ toYaml .Values.resources | nindent 16 }}
+              env:
+                - name: NTFY_URL
+                  value: {{ .Values.ntfy.url | quote }}
+                - name: WARN_DAYS
+                  value: {{ .Values.warnDays | quote }}
+                - name: NTFY_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: cert-monitor-ntfy
+                      key: NTFY_TOKEN
+              volumeMounts:
+                - name: tls
+                  mountPath: /tls
+                  readOnly: true
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  apk add --no-cache openssl curl > /dev/null 2>&1
+
+                  WARN_SECS=$((WARN_DAYS * 86400))
+                  EXPIRING=""
+                  CHECKED=0
+
+                  for cert in /tls/*.crt /tls/etcd/*.crt; do
+                    [ -f "$cert" ] || continue
+                    CHECKED=$((CHECKED + 1))
+                    name=$(basename "$cert")
+
+                    if ! openssl x509 -checkend "$WARN_SECS" -noout -in "$cert" > /dev/null 2>&1; then
+                      expiry=$(openssl x509 -enddate -noout -in "$cert" | cut -d= -f2)
+                      expiry_epoch=$(date -d "$expiry" +%s 2>/dev/null)
+                      days_left=$(( (expiry_epoch - $(date +%s)) / 86400 ))
+                      EXPIRING="${EXPIRING}\n  - ${name}: ${days_left} days (expires ${expiry})"
+                    fi
+                  done
+
+                  echo "Checked ${CHECKED} certificates."
+
+                  if [ -n "$EXPIRING" ]; then
+                    echo "WARNING: expiring certs found:${EXPIRING}"
+                    curl -sf \
+                      -H "Authorization: Bearer ${NTFY_TOKEN}" \
+                      -H "Title: ⚠️ RKE2 Cert Expiry Warning" \
+                      -H "Priority: high" \
+                      -H "Tags: warning,certificate,rke2" \
+                      -d "$(printf "The following certificates expire within ${WARN_DAYS} days:\n${EXPIRING}\n\nRun: sudo rke2 certificate rotate")" \
+                      "${NTFY_URL}"
+                    echo "Alert sent to ntfy."
+                  else
+                    echo "All certificates valid for more than ${WARN_DAYS} days."
+                    curl -sf \
+                      -H "Authorization: Bearer ${NTFY_TOKEN}" \
+                      -H "Title: ✅ RKE2 Certs OK" \
+                      -H "Priority: low" \
+                      -H "Tags: white_check_mark,certificate,rke2" \
+                      -d "All ${CHECKED} certificates are valid for more than ${WARN_DAYS} days." \
+                      "${NTFY_URL}"
+                  fi
