@@ -16,6 +16,8 @@ spec:
         controller:
           service:
             type: LoadBalancer
+            annotations:
+              metallb.universe.tf/address-pool: homelab-pool
   destination:
     server: https://kubernetes.default.svc
     namespace: ingress-nginx
