@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: image-pruner
+  namespace: kube-system
+  labels:
+    app: image-pruner
+spec:
+  selector:
+    matchLabels:
+      app: image-pruner
+  template:
+    metadata:
+      labels:
+        app: image-pruner
+    spec:
+      tolerations:
+        - operator: Exists
+      priorityClassName: system-node-critical
+      containers:
+        - name: pruner
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              while true; do
+                echo "$(date) Running image prune..."
+                /rke2-bin/crictl \
+                  --runtime-endpoint unix:///run/k3s/containerd/containerd.sock \
+                  rmi --prune 2>&1 || true
+                echo "$(date) Prune complete. Sleeping 24h."
+                sleep 86400
+              done
+          resources:
+            requests:
+              cpu: 5m
+              memory: 10Mi
+            limits:
+              memory: 32Mi
+          volumeMounts:
+            - name: rke2-bin
+              mountPath: /rke2-bin
+              readOnly: true
+            - name: containerd-sock
+              mountPath: /run/k3s/containerd/containerd.sock
+      volumes:
+        - name: rke2-bin
+          hostPath:
+            path: /var/lib/rancher/rke2/bin
+            type: Directory
+        - name: containerd-sock
+          hostPath:
+            path: /run/k3s/containerd/containerd.sock
+            type: Socket
+  updateStrategy:
+    type: RollingUpdate
