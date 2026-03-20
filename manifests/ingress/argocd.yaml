@@ -8,6 +8,9 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - argocd.homelab.local
   rules:
     - host: argocd.homelab.local
       http:

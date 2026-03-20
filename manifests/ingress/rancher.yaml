@@ -8,6 +8,9 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - rancher.homelab.local
   rules:
     - host: rancher.homelab.local
       http:
