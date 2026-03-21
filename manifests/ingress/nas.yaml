@@ -1,0 +1,441 @@
+---
+# Grafana
+apiVersion: v1
+kind: Service
+metadata:
+  name: nas-grafana
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 3340
+      targetPort: 3340
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: nas-grafana
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 192.168.1.244
+    ports:
+      - name: http
+        port: 3340
+        protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nas-grafana
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: grafana.homelab.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nas-grafana
+                port:
+                  number: 3340
+---
+# Portainer
+apiVersion: v1
+kind: Service
+metadata:
+  name: nas-portainer
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: nas-portainer
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 192.168.1.244
+    ports:
+      - name: http
+        port: 9000
+        protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nas-portainer
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: portainer.homelab.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nas-portainer
+                port:
+                  number: 9000
+---
+# Synology DSM
+apiVersion: v1
+kind: Service
+metadata:
+  name: nas-dsm
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 5000
+      targetPort: 5000
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: nas-dsm
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 192.168.1.244
+    ports:
+      - name: http
+        port: 5000
+        protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nas-dsm
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: nas.homelab.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nas-dsm
+                port:
+                  number: 5000
+---
+# Jellyfin
+apiVersion: v1
+kind: Service
+metadata:
+  name: nas-jellyfin
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 8096
+      targetPort: 8096
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: nas-jellyfin
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 192.168.1.244
+    ports:
+      - name: http
+        port: 8096
+        protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nas-jellyfin
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: jellyfin.homelab.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nas-jellyfin
+                port:
+                  number: 8096
+---
+# Prowlarr
+apiVersion: v1
+kind: Service
+metadata:
+  name: nas-prowlarr
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 9696
+      targetPort: 9696
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: nas-prowlarr
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 192.168.1.244
+    ports:
+      - name: http
+        port: 9696
+        protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nas-prowlarr
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: prowlarr.homelab.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nas-prowlarr
+                port:
+                  number: 9696
+---
+# Radarr
+apiVersion: v1
+kind: Service
+metadata:
+  name: nas-radarr
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 7878
+      targetPort: 7878
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: nas-radarr
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 192.168.1.244
+    ports:
+      - name: http
+        port: 7878
+        protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nas-radarr
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: radarr.homelab.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nas-radarr
+                port:
+                  number: 7878
+---
+# Sonarr
+apiVersion: v1
+kind: Service
+metadata:
+  name: nas-sonarr
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 8989
+      targetPort: 8989
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: nas-sonarr
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 192.168.1.244
+    ports:
+      - name: http
+        port: 8989
+        protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nas-sonarr
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: sonarr.homelab.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nas-sonarr
+                port:
+                  number: 8989
+---
+# Lidarr
+apiVersion: v1
+kind: Service
+metadata:
+  name: nas-lidarr
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 8686
+      targetPort: 8686
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: nas-lidarr
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 192.168.1.244
+    ports:
+      - name: http
+        port: 8686
+        protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nas-lidarr
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: lidarr.homelab.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nas-lidarr
+                port:
+                  number: 8686
+---
+# qBittorrent
+apiVersion: v1
+kind: Service
+metadata:
+  name: nas-qbittorrent
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 8090
+      targetPort: 8090
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: nas-qbittorrent
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 192.168.1.244
+    ports:
+      - name: http
+        port: 8090
+        protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nas-qbittorrent
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: qbittorrent.homelab.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nas-qbittorrent
+                port:
+                  number: 8090
